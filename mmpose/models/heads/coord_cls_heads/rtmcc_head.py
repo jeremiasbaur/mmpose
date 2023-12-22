@@ -81,7 +81,7 @@ class RTMCCHead(BaseHead):
             init_cfg = self.default_init_cfg
 
         super().__init__(init_cfg)
-
+        self.quant = torch.ao.quantization.QuantStub()
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.input_size = input_size
@@ -130,6 +130,8 @@ class RTMCCHead(BaseHead):
 
         self.cls_x = nn.Linear(gau_cfg['hidden_dims'], W, bias=False)
         self.cls_y = nn.Linear(gau_cfg['hidden_dims'], H, bias=False)
+        self.dequant_x = torch.ao.quantization.DeQuantStub()
+        self.dequant_y = torch.ao.quantization.DeQuantStub()
 
     def forward(self, feats: Tuple[Tensor]) -> Tuple[Tensor, Tensor]:
         """Forward the network.
@@ -145,7 +147,7 @@ class RTMCCHead(BaseHead):
             pred_y (Tensor): 1d representation of y.
         """
         feats = feats[-1]
-
+        feats = self.quant(feats)
         feats = self.final_layer(feats)  # -> B, K, H, W
 
         # flatten the output heatmap
@@ -157,6 +159,8 @@ class RTMCCHead(BaseHead):
 
         pred_x = self.cls_x(feats)
         pred_y = self.cls_y(feats)
+        pred_x = self.dequant_x(pred_x)
+        pred_x = self.dequant_y(pred_x)
 
         return pred_x, pred_y
 
