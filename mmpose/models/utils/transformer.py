@@ -398,6 +398,9 @@ class ScaleNorm(nn.Module):
         self.scale = dim**-0.5
         self.eps = eps
         self.g = nn.Parameter(torch.ones(1))
+        self.quant = torch.ao.quantization.QuantStub()
+        self.dequant = torch.ao.quantization.DeQuantStub()
+
 
     def forward(self, x):
         """Forward function.
@@ -408,7 +411,7 @@ class ScaleNorm(nn.Module):
         Returns:
             torch.Tensor: The tensor after applying scale norm.
         """
-
+        x = self.dequant(x)
         if torch.onnx.is_in_onnx_export() and \
                 digit_version(TORCH_VERSION) >= digit_version('1.12'):
 
@@ -417,7 +420,9 @@ class ScaleNorm(nn.Module):
         else:
             norm = torch.norm(x, dim=-1, keepdim=True)
         norm = norm * self.scale
-        return x / norm.clamp(min=self.eps) * self.g
+        out = x / norm.clamp(min=self.eps) * self.g
+        
+        return self.quant(out)
 
 
 class SinePositionalEncoding(nn.Module):

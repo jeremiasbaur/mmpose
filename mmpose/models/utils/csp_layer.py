@@ -21,14 +21,14 @@ class ChannelAttention(BaseModule):
     def __init__(self, channels: int, init_cfg: OptMultiConfig = None) -> None:
         super().__init__(init_cfg=init_cfg)
         self.quant = torch.ao.quantization.QuantStub()
-        
+        self.dequant = torch.ao.quantization.DeQuantStub()
+
         self.global_avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Conv2d(channels, channels, 1, 1, 0, bias=True)
         if digit_version(torch.__version__) < (1, 7, 0):
             self.act = nn.Hardsigmoid()
         else:
             self.act = nn.Hardsigmoid(inplace=True)
-        self.dequant = torch.ao.quantization.DeQuantStub()
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function for ChannelAttention."""
@@ -226,8 +226,6 @@ class CSPLayer(BaseModule):
                      type='BN', momentum=0.03, eps=0.001),
                  act_cfg: ConfigType = dict(type='Swish'),
                  init_cfg: OptMultiConfig = None) -> None:
-        self.quant = torch.ao.quantization.QuantStub()
-        
         super().__init__(init_cfg=init_cfg)
         block = CSPNeXtBlock if use_cspnext_block else DarknetBottleneck
         mid_channels = int(out_channels * expand_ratio)
@@ -267,7 +265,6 @@ class CSPLayer(BaseModule):
         ])
         if channel_attention:
             self.attention1 = ChannelAttention(2 * mid_channels)
-        self.dequant = torch.ao.quantization.DeQuantStub()
 
     def forward(self, x: Tensor) -> Tensor:
         """Forward function."""

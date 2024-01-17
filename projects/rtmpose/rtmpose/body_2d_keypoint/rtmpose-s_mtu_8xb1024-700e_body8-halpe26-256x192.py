@@ -5,7 +5,7 @@ num_keypoints = 2
 input_size = (192, 256)
 
 # runtime
-max_epochs = 4000
+max_epochs = 2000
 stage2_num_epochs = 30
 base_lr = 5e-3
 train_batch_size = 64
@@ -31,7 +31,7 @@ param_scheduler = [
         start_factor=1.0e-5,
         by_epoch=False,
         begin=0,
-        end=1000),
+        end=500),
     dict(
         type='CosineAnnealingLR',
         eta_min=base_lr * 0.05,
@@ -105,9 +105,10 @@ model = dict(
     test_cfg=dict(flip_test=True))
 
 # base dataset settings
+# supply the path to your coco dataset
 dataset_type = 'CocoDataset'
 data_mode = 'topdown'
-data_root = '/scratch/bsc23h2/data/processed/coco_datasets/coco2/'
+data_root = '/scratch/bsc23h2/data/processed/coco_datasets/coco5/'
 
 backend_args = dict(backend='local')
 
@@ -187,12 +188,13 @@ train_pipeline_stage2 = [
 coco_mtu = [(i,i) for i in range(2)]
 
 # train datasets
+# supply the path to the train dataset
 dataset_mtu = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco2/train.json',
-    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco2/images/'),
+    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco5/train.json',
+    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco5/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
@@ -210,7 +212,8 @@ train_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=True),
     dataset=dict(
         type='CombinedDataset',
-        metainfo=dict(from_file='/home/bsc23h2/BA/mtu_walk_run_tri/mmpose/mmpose/configs/_base_/datasets/mtu.py'),
+        # if it doesn't work with a relative path, just supply the absolute path
+        metainfo=dict(from_file='./mmpose/configs/_base_/datasets/mtu.py'),
         datasets=[
             dataset_mtu,
         ],
@@ -219,12 +222,13 @@ train_dataloader = dict(
 ))
 
 # val datasets
+# supply the path to the train dataset
 val_coco = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco2/val.json',
-    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco2/images/'),
+    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco5/val.json',
+    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco5/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
@@ -241,7 +245,8 @@ val_dataloader = dict(
     sampler=dict(type='DefaultSampler', shuffle=False, round_up=False),
     dataset=dict(
         type='CombinedDataset',
-        metainfo=dict(from_file='/home/bsc23h2/BA/mtu_walk_run_tri/mmpose/mmpose/configs/_base_/datasets/mtu.py'),
+        # if it doesn't work with a relative path, just supply the absolute path
+        metainfo=dict(from_file='./mmpose/configs/_base_/datasets/mtu.py'),
         datasets=[
             val_coco,
         ],

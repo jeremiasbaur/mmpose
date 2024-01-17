@@ -82,6 +82,7 @@ class RTMCCHead(BaseHead):
 
         super().__init__(init_cfg)
         self.quant = torch.ao.quantization.QuantStub()
+        
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.input_size = input_size
@@ -152,11 +153,10 @@ class RTMCCHead(BaseHead):
 
         # flatten the output heatmap
         feats = torch.flatten(feats, 2)
-
         feats = self.mlp(feats)  # -> B, K, hidden
-
+        
         feats = self.gau(feats)
-
+        
         pred_x = self.cls_x(feats)
         pred_y = self.cls_y(feats)
         pred_x = self.dequant_x(pred_x)

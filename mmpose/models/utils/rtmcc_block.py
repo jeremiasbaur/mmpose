@@ -191,6 +191,13 @@ class RTMCCBlock(nn.Module):
         if dropout_rate > 0.:
             self.dropout = nn.Dropout(dropout_rate)
 
+        self.quant = torch.ao.quantization.QuantStub()
+        self.dequant = torch.ao.quantization.DeQuantStub()
+        
+        self.quant2 = torch.ao.quantization.QuantStub()
+        self.dequant2 = torch.ao.quantization.DeQuantStub()
+        self.dequant3 = torch.ao.quantization.DeQuantStub()
+
     def rel_pos_bias(self, seq_len, k_len=None):
         """Add relative position bias."""
 
@@ -218,6 +225,7 @@ class RTMCCBlock(nn.Module):
         # [B, K, in_token_dims] -> [B, K, e + e + s]
         uv = self.uv(x)
         uv = self.act_fn(uv)
+        uv = self.dequant(uv)
 
         if self.attn_type == 'self-attn':
             # [B, K, e + e + s] -> [B, K, e], [B, K, e], [B, K, s]
@@ -259,8 +267,9 @@ class RTMCCBlock(nn.Module):
         # [B, K, K] x [B, K, e] -> [B, K, e]
         x = u * torch.bmm(kernel, v)
         # [B, K, e] -> [B, K, out_token_dims]
+        x = self.quant(x)
         x = self.o(x)
-
+        
         return x
 
     def forward(self, x):
@@ -272,6 +281,11 @@ class RTMCCBlock(nn.Module):
             else:
                 res_shortcut = x
             main_branch = self.drop_path(self._forward(x))
-            return self.res_scale(res_shortcut) + main_branch
+            main_branch = self.dequant3(main_branch)
+            res_shortcut = self.dequant2(res_shortcut)
+            res = self.res_scale(res_shortcut)
+            out = self.quant2(res + main_branch)
+
+            return out
         else:
             return self.drop_path(self._forward(x))
