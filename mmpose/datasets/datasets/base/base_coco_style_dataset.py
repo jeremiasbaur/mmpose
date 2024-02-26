@@ -230,8 +230,9 @@ class BaseCocoStyleDataset(BaseDataset):
         image_list = []
 
         for img_id in self.coco.getImgIds():
-            if img_id % self.sample_interval != 0:
+            if isinstance(img_id, int) and img_id % self.sample_interval != 0:
                 continue
+            #print(img_id)
             img = self.coco.loadImgs(img_id)[0]
             img.update({
                 'img_id':

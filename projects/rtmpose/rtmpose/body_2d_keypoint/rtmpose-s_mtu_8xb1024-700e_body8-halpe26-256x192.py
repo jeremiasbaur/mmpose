@@ -108,7 +108,7 @@ model = dict(
 # supply the path to your coco dataset
 dataset_type = 'CocoDataset'
 data_mode = 'topdown'
-data_root = '/scratch/bsc23h2/data/processed/coco_datasets/coco5/'
+data_root = '/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/'
 
 backend_args = dict(backend='local')
 
@@ -193,8 +193,8 @@ dataset_mtu = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco5/train.json',
-    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco5/images/'),
+    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/train.json',
+    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
@@ -227,8 +227,8 @@ val_coco = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/scratch/bsc23h2/data/processed/coco_datasets/coco5/val.json',
-    data_prefix=dict(img='/scratch/bsc23h2/data/processed/coco_datasets/coco5/images/'),
+    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/val.json',
+    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
