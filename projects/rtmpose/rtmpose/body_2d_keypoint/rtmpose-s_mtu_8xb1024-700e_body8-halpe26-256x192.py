@@ -7,8 +7,8 @@ input_size = (192, 256)
 # runtime
 max_epochs = 2000
 stage2_num_epochs = 30
-base_lr = 5e-3
-train_batch_size = 64
+base_lr = 4e-3
+train_batch_size = 128
 val_batch_size = 64
 
 train_cfg = dict(max_epochs=max_epochs, val_interval=10)
@@ -21,7 +21,7 @@ optim_wrapper = dict(
     clip_grad=dict(max_norm=35, norm_type=2),
     paramwise_cfg=dict(
         norm_decay_mult=0, bias_decay_mult=0, bypass_duplicate=True,
-        #custom_keys={'backbone':dict(lr_mult=0, decay_mult=0)}
+        custom_keys={'backbone':dict(lr_mult=0, decay_mult=0)}
         ),)
 
 # learning rate
@@ -108,7 +108,7 @@ model = dict(
 # supply the path to your coco dataset
 dataset_type = 'CocoDataset'
 data_mode = 'topdown'
-data_root = '/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/'
+data_root = '/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v2/'
 
 backend_args = dict(backend='local')
 
@@ -193,8 +193,8 @@ dataset_mtu = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/train.json',
-    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/images/'),
+    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v2/train.json',
+    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v2/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
@@ -213,7 +213,7 @@ train_dataloader = dict(
     dataset=dict(
         type='CombinedDataset',
         # if it doesn't work with a relative path, just supply the absolute path
-        metainfo=dict(from_file='./mmpose/configs/_base_/datasets/mtu.py'),
+        metainfo=dict(from_file='/home/bsc23h2/BA/mtu_walk_run_tri/mmpose/mmpose/configs/_base_/datasets/mtu.py'),
         datasets=[
             dataset_mtu,
         ],
@@ -227,8 +227,8 @@ val_coco = dict(
     type=dataset_type,
     data_root=data_root,
     data_mode=data_mode,
-    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/val.json',
-    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v1/images/'),
+    ann_file='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v2/val.json',
+    data_prefix=dict(img='/usr/scratch/vilan1/bsc23h2/data/processed/coco_datasets/treadmill/treadmill_v2/images/'),
     pipeline=[
         dict(
             type='KeypointConverter',
@@ -246,7 +246,7 @@ val_dataloader = dict(
     dataset=dict(
         type='CombinedDataset',
         # if it doesn't work with a relative path, just supply the absolute path
-        metainfo=dict(from_file='./mmpose/configs/_base_/datasets/mtu.py'),
+        metainfo=dict(from_file='/home/bsc23h2/BA/mtu_walk_run_tri/mmpose/mmpose/configs/_base_/datasets/mtu.py'),
         datasets=[
             val_coco,
         ],
